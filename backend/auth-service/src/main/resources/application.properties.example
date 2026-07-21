@@ -20,3 +20,12 @@ spring.jpa.properties.hibernate.format_sql=true
 # ===== JWT =====
 jwt.secret=${JWT_SECRET:this-is-a-temporary-dev-secret-change-it-later-please}
 jwt.expiration-ms=86400000
+
+# ===== Google OAuth2 =====
+spring.security.oauth2.client.registration.google.client-id=your-google-client-id-here
+spring.security.oauth2.client.registration.google.client-secret=your-google-client-secret-here
+spring.security.oauth2.client.registration.google.scope=openid,profile,email
+
+# Where the frontend lives, so we know where to redirect after login
+app.frontend-url=http://localhost:5173
+
