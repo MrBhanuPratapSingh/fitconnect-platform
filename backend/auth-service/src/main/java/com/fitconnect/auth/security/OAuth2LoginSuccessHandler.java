@@ -40,7 +40,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                         "User should exist after CustomOAuth2UserService ran. Email was: " + email));
 
         String role = user.getRoles().iterator().next().getName().name();
-        String token = jwtService.generateToken(user.getEmail(), role);
+        String token = jwtService.generateToken(user.getId(), user.getEmail(), role);
 
         String redirectUrl = frontendUrl + "/oauth2/redirect?token=" + token;
         response.sendRedirect(redirectUrl);
