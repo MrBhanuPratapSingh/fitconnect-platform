@@ -1,0 +1,16 @@
+# ===== Server =====
+server.port=8082
+
+# ===== Application =====
+spring.application.name=gym-service
+
+# ===== Database =====
+spring.datasource.url=jdbc:mysql://localhost:3306/gymdb?createDatabaseIfNotExist=true
+spring.datasource.username=your-mysql-username-here
+spring.datasource.password=your-mysql-password-here
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+
+# ===== JPA / Hibernate =====
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
