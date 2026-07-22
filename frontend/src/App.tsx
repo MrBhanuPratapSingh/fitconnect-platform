@@ -3,6 +3,7 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import OAuthRedirectPage from './pages/OAuthRedirectPage';
 import ProtectedRoute from './components/common/ProtectedRoute';
+import OwnerDashboardPage from './pages/owner/OwnerDashboardPage';
 
 function App() {
   return (
@@ -16,9 +17,7 @@ function App() {
         path="/owner/dashboard"
         element={
           <ProtectedRoute allowedRoles={['GYM_OWNER']}>
-            <div className="min-h-screen flex items-center justify-center bg-slate-900 text-white text-2xl">
-              Owner dashboard coming soon
-            </div>
+            <OwnerDashboardPage />
           </ProtectedRoute>
         }
       />
