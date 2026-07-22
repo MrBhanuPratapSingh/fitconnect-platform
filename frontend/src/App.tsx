@@ -6,6 +6,7 @@ import ProtectedRoute from './components/common/ProtectedRoute';
 import OwnerDashboardPage from './pages/owner/OwnerDashboardPage';
 import MembersPage from './pages/owner/MembersPage';
 import TrainersPage from './pages/owner/TrainersPage';
+import FeesPage from './pages/owner/FeesPage';
 
 function App() {
   return (
@@ -50,6 +51,14 @@ function App() {
   element={
     <ProtectedRoute allowedRoles={['GYM_OWNER']}>
       <TrainersPage />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/owner/fees"
+  element={
+    <ProtectedRoute allowedRoles={['GYM_OWNER']}>
+      <FeesPage />
     </ProtectedRoute>
   }
 />
