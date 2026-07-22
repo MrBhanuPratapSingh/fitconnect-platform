@@ -4,6 +4,7 @@ import RegisterPage from './pages/RegisterPage';
 import OAuthRedirectPage from './pages/OAuthRedirectPage';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import OwnerDashboardPage from './pages/owner/OwnerDashboardPage';
+import MembersPage from './pages/owner/MembersPage';
 
 function App() {
   return (
@@ -18,6 +19,15 @@ function App() {
         element={
           <ProtectedRoute allowedRoles={['GYM_OWNER']}>
             <OwnerDashboardPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/owner/members"
+        element={
+          <ProtectedRoute allowedRoles={['GYM_OWNER']}>
+            <MembersPage />
           </ProtectedRoute>
         }
       />
