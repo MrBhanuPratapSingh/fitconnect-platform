@@ -5,6 +5,7 @@ import OAuthRedirectPage from './pages/OAuthRedirectPage';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import OwnerDashboardPage from './pages/owner/OwnerDashboardPage';
 import MembersPage from './pages/owner/MembersPage';
+import TrainersPage from './pages/owner/TrainersPage';
 
 function App() {
   return (
@@ -44,6 +45,14 @@ function App() {
       />
 
       <Route path="*" element={<Navigate to="/login" />} />
+      <Route
+  path="/owner/trainers"
+  element={
+    <ProtectedRoute allowedRoles={['GYM_OWNER']}>
+      <TrainersPage />
+    </ProtectedRoute>
+  }
+/>
     </Routes>
   );
 }
