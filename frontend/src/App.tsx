@@ -11,6 +11,8 @@ import JobsPage from './pages/owner/JobsPage';
 import ReviewsPage from './pages/owner/ReviewsPage';
 import UserDashboardPage from './pages/user/UserDashboardPage';
 import GymProfilePage from './pages/user/GymProfilePage';
+import JobSearchPage from './pages/user/JobSearchPage';
+import MyApplicationsPage from './pages/user/MyApplicationsPage';
 
 function App() {
   return (
@@ -85,6 +87,22 @@ function App() {
           </ProtectedRoute>
         }
       />
+      <Route
+  path="/user/jobs"
+  element={
+    <ProtectedRoute allowedRoles={['TRAINER']}>
+      <JobSearchPage />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/user/applications"
+  element={
+    <ProtectedRoute allowedRoles={['USER', 'TRAINER']}>
+      <MyApplicationsPage />
+    </ProtectedRoute>
+  }
+/>
 
       <Route path="*" element={<Navigate to="/login" />} />
     </Routes>
