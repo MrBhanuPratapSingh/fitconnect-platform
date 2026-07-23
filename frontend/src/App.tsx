@@ -8,6 +8,7 @@ import MembersPage from './pages/owner/MembersPage';
 import TrainersPage from './pages/owner/TrainersPage';
 import FeesPage from './pages/owner/FeesPage';
 import JobsPage from './pages/owner/JobsPage';
+import ReviewsPage from './pages/owner/ReviewsPage';
 
 function App() {
   return (
@@ -68,6 +69,14 @@ function App() {
   element={
     <ProtectedRoute allowedRoles={['GYM_OWNER']}>
       <JobsPage />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/owner/reviews"
+  element={
+    <ProtectedRoute allowedRoles={['GYM_OWNER']}>
+      <ReviewsPage />
     </ProtectedRoute>
   }
 />
