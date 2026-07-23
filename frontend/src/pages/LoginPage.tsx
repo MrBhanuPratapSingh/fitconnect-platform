@@ -18,10 +18,11 @@ function LoginPage() {
     setLoading(true);
 
     try {
-      const response = await axiosClient.post('/api/auth/login', { email, password });
-      const { token, fullName, email: userEmail, role } = response.data;
+     const response = await axiosClient.post('/api/auth/login', { email, password });
+     const { token, fullName, email: userEmail, role } = response.data;
 
-      login(token, { fullName, email: userEmail, role });
+      const payload = JSON.parse(atob(token.split('.')[1]));
+login(token, { id: payload.userId, fullName, email: userEmail, role });
 
       // Route based on role
       if (role === 'GYM_OWNER') {

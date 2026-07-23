@@ -9,6 +9,8 @@ import TrainersPage from './pages/owner/TrainersPage';
 import FeesPage from './pages/owner/FeesPage';
 import JobsPage from './pages/owner/JobsPage';
 import ReviewsPage from './pages/owner/ReviewsPage';
+import UserDashboardPage from './pages/user/UserDashboardPage';
+import GymProfilePage from './pages/user/GymProfilePage';
 
 function App() {
   return (
@@ -26,7 +28,6 @@ function App() {
           </ProtectedRoute>
         }
       />
-
       <Route
         path="/owner/members"
         element={
@@ -35,51 +36,57 @@ function App() {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/owner/trainers"
+        element={
+          <ProtectedRoute allowedRoles={['GYM_OWNER']}>
+            <TrainersPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/owner/fees"
+        element={
+          <ProtectedRoute allowedRoles={['GYM_OWNER']}>
+            <FeesPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/owner/jobs"
+        element={
+          <ProtectedRoute allowedRoles={['GYM_OWNER']}>
+            <JobsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/owner/reviews"
+        element={
+          <ProtectedRoute allowedRoles={['GYM_OWNER']}>
+            <ReviewsPage />
+          </ProtectedRoute>
+        }
+      />
 
       <Route
         path="/user/dashboard"
         element={
           <ProtectedRoute allowedRoles={['USER', 'TRAINER']}>
-            <div className="min-h-screen flex items-center justify-center bg-slate-900 text-white text-2xl">
-              User dashboard coming soon
-            </div>
+            <UserDashboardPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/user/gyms/:gymId"
+        element={
+          <ProtectedRoute allowedRoles={['USER', 'TRAINER']}>
+            <GymProfilePage />
           </ProtectedRoute>
         }
       />
 
       <Route path="*" element={<Navigate to="/login" />} />
-      <Route
-  path="/owner/trainers"
-  element={
-    <ProtectedRoute allowedRoles={['GYM_OWNER']}>
-      <TrainersPage />
-    </ProtectedRoute>
-  }
-/>
-<Route
-  path="/owner/fees"
-  element={
-    <ProtectedRoute allowedRoles={['GYM_OWNER']}>
-      <FeesPage />
-    </ProtectedRoute>
-  }
-/>
-<Route
-  path="/owner/jobs"
-  element={
-    <ProtectedRoute allowedRoles={['GYM_OWNER']}>
-      <JobsPage />
-    </ProtectedRoute>
-  }
-/>
-<Route
-  path="/owner/reviews"
-  element={
-    <ProtectedRoute allowedRoles={['GYM_OWNER']}>
-      <ReviewsPage />
-    </ProtectedRoute>
-  }
-/>
     </Routes>
   );
 }

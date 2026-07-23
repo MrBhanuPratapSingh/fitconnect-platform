@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, ReactNode } from 'react';
 
 interface User {
+  id: number;
   fullName: string;
   email: string;
   role: string;
@@ -13,6 +14,7 @@ interface AuthContextType {
   logout: () => void;
   isAuthenticated: boolean;
 }
+
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
