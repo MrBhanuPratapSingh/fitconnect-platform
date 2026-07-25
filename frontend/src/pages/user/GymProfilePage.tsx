@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import UserSidebar from '../../components/user/UserSidebar';
 import { getPublicGym } from '../../api/publicGymApi';
-import { getReviews, getRatingSummary } from '../../api/reviewApi';
+import { getReviews, getRatingSummary, updateReview, deleteReview } from '../../api/reviewApi';
 import type { Review, RatingSummary } from '../../api/reviewApi';
 import type { GymPublicResponse } from '../../types/gym';
 import { useAuth } from '../../context/AuthContext';
@@ -15,6 +15,8 @@ function GymProfilePage() {
   const [summary, setSummary] = useState<RatingSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [showReviewForm, setShowReviewForm] = useState(false);
+  const [editingReviewId, setEditingReviewId] = useState<number | null>(null);
+  const { user } = useAuth();
 
   useEffect(() => { init(); }, [gymId]);
 
@@ -38,11 +40,25 @@ function GymProfilePage() {
     }
   };
 
-  const handleReviewSubmitted = (review: Review) => {
-    setReviews([review, ...reviews]);
+  const handleReviewSubmitted = () => {
     setShowReviewForm(false);
-    init(); // refresh summary too
+    setEditingReviewId(null);
+    init();
   };
+
+  const handleDeleteReview = async () => {
+    if (!gymId || !user) return;
+    if (!confirm('Delete your review?')) return;
+    try {
+      await deleteReview(Number(gymId), user.id);
+      init();
+    } catch (err: any) {
+      alert(err.response?.data?.error || 'Failed to delete review');
+    }
+  };
+
+  // A logged-in user can only have one review per gym — find theirs, if it exists
+  const myReview = reviews.find((r) => r.userId === user?.id);
 
   if (loading) {
     return (
@@ -76,10 +92,13 @@ function GymProfilePage() {
               </p>
             )}
           </div>
-          <button onClick={() => setShowReviewForm(!showReviewForm)}
-            className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition">
-            {showReviewForm ? 'Cancel' : 'Write a review'}
-          </button>
+
+          {!myReview && (
+            <button onClick={() => setShowReviewForm(!showReviewForm)}
+              className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition">
+              {showReviewForm ? 'Cancel' : 'Write a review'}
+            </button>
+          )}
         </div>
 
         <div className="grid grid-cols-4 gap-3 mb-6">
@@ -109,7 +128,7 @@ function GymProfilePage() {
           </div>
         )}
 
-        {showReviewForm && gymId && (
+        {showReviewForm && gymId && !myReview && (
           <ReviewForm gymId={Number(gymId)} onSubmitted={handleReviewSubmitted} />
         )}
 
@@ -119,15 +138,44 @@ function GymProfilePage() {
             <p className="text-slate-400 text-sm">No reviews yet. Be the first!</p>
           ) : (
             <div className="flex flex-col gap-3">
-              {reviews.map((review) => (
-                <div key={review.id} className="bg-slate-800 rounded-lg p-4">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-white text-sm font-medium">{review.userName}</span>
-                    <span className="text-yellow-400 text-sm">{'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}</span>
+              {reviews.map((review) => {
+                const isMine = review.userId === user?.id;
+                const isEditingThis = editingReviewId === review.id;
+
+                return (
+                  <div key={review.id} className="bg-slate-800 rounded-lg p-4">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-white text-sm font-medium">
+                        {review.userName} {isMine && <span className="text-blue-400 text-xs">(you)</span>}
+                      </span>
+                      <span className="text-yellow-400 text-sm">{'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}</span>
+                    </div>
+
+                    {isEditingThis ? (
+                      <EditReviewForm
+                        gymId={Number(gymId)}
+                        review={review}
+                        onSaved={handleReviewSubmitted}
+                        onCancel={() => setEditingReviewId(null)}
+                      />
+                    ) : (
+                      <>
+                        {review.comment && <p className="text-slate-300 text-sm">{review.comment}</p>}
+                        {isMine && (
+                          <div className="flex gap-3 mt-2">
+                            <button onClick={() => setEditingReviewId(review.id)} className="text-blue-400 hover:text-blue-300 text-xs">
+                              Edit
+                            </button>
+                            <button onClick={handleDeleteReview} className="text-red-400 hover:text-red-300 text-xs">
+                              Delete
+                            </button>
+                          </div>
+                        )}
+                      </>
+                    )}
                   </div>
-                  {review.comment && <p className="text-slate-300 text-sm">{review.comment}</p>}
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
@@ -145,7 +193,7 @@ function InfoCard({ label, value }: { label: string; value: string }) {
   );
 }
 
-function ReviewForm({ gymId, onSubmitted }: { gymId: number; onSubmitted: (r: Review) => void }) {
+function ReviewForm({ gymId, onSubmitted }: { gymId: number; onSubmitted: () => void }) {
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
   const [error, setError] = useState('');
@@ -157,14 +205,13 @@ function ReviewForm({ gymId, onSubmitted }: { gymId: number; onSubmitted: (r: Re
     setError('');
     setSubmitting(true);
     try {
-      // review-service needs userId + userName in the body (no auth context there yet)
-      const res = await axiosClient.post(`/api/gyms/${gymId}/reviews`, {
-        userId: 1, // placeholder — replaced below once we wire real user id
+      await axiosClient.post(`/api/gyms/${gymId}/reviews`, {
+        userId: user?.id,
         userName: user?.fullName || 'Anonymous',
         rating,
         comment,
       });
-      onSubmitted(res.data as Review);
+      onSubmitted();
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to submit review');
     } finally {
@@ -188,6 +235,60 @@ function ReviewForm({ gymId, onSubmitted }: { gymId: number; onSubmitted: (r: Re
           className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-medium px-4 py-2 rounded-lg transition">
           {submitting ? 'Submitting...' : 'Submit review'}
         </button>
+      </form>
+    </div>
+  );
+}
+
+function EditReviewForm({
+  gymId, review, onSaved, onCancel,
+}: {
+  gymId: number;
+  review: Review;
+  onSaved: () => void;
+  onCancel: () => void;
+}) {
+  const [rating, setRating] = useState(review.rating);
+  const [comment, setComment] = useState(review.comment || '');
+  const [error, setError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const { user } = useAuth();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
+    setError('');
+    setSubmitting(true);
+    try {
+      await updateReview(gymId, user.id, { rating, comment });
+      onSaved();
+    } catch (err: any) {
+      setError(err.response?.data?.error || 'Failed to update review');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="mt-2">
+      {error && <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-sm rounded-lg px-3 py-2 mb-3">{error}</div>}
+      <form onSubmit={handleSubmit}>
+        <select value={rating} onChange={(e) => setRating(Number(e.target.value))}
+          className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm mb-2">
+          {[5,4,3,2,1].map(n => <option key={n} value={n}>{n} star{n > 1 ? 's' : ''}</option>)}
+        </select>
+        <textarea value={comment} onChange={(e) => setComment(e.target.value)} rows={2}
+          className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm mb-2" />
+        <div className="flex gap-2">
+          <button type="submit" disabled={submitting}
+            className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-xs font-medium px-3 py-1.5 rounded-lg transition">
+            {submitting ? 'Saving...' : 'Save'}
+          </button>
+          <button type="button" onClick={onCancel}
+            className="text-slate-400 hover:text-slate-300 text-xs px-3 py-1.5">
+            Cancel
+          </button>
+        </div>
       </form>
     </div>
   );
