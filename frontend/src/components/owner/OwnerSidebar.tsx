@@ -26,6 +26,7 @@ function OwnerSidebar() {
 
       <NavLink to="/owner/dashboard" end className={linkClass}>Dashboard</NavLink>
       <NavLink to="/owner/gym-profile" className={linkClass}>Gym profile</NavLink>
+      <NavLink to="/owner/media" className={linkClass}>Photos & videos</NavLink>
       <NavLink to="/owner/members" className={linkClass}>Members</NavLink>
       <NavLink to="/owner/trainers" className={linkClass}>Trainers</NavLink>
       <NavLink to="/owner/fees" className={linkClass}>Fees & salary</NavLink>

@@ -14,6 +14,7 @@ import GymProfilePage from './pages/user/GymProfilePage';
 import JobSearchPage from './pages/user/JobSearchPage';
 import MyApplicationsPage from './pages/user/MyApplicationsPage';
 import GymProfileEditPage from './pages/owner/GymProfileEditPage';
+import MediaPage from './components/owner/MediaPage';
 
 function App() {
   return (
@@ -109,6 +110,14 @@ function App() {
   element={
     <ProtectedRoute allowedRoles={['GYM_OWNER']}>
       <GymProfileEditPage />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/owner/media"
+  element={
+    <ProtectedRoute allowedRoles={['GYM_OWNER']}>
+      <MediaPage/>
     </ProtectedRoute>
   }
 />
