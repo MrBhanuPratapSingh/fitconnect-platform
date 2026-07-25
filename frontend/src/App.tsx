@@ -13,6 +13,7 @@ import UserDashboardPage from './pages/user/UserDashboardPage';
 import GymProfilePage from './pages/user/GymProfilePage';
 import JobSearchPage from './pages/user/JobSearchPage';
 import MyApplicationsPage from './pages/user/MyApplicationsPage';
+import GymProfileEditPage from './pages/owner/GymProfileEditPage';
 
 function App() {
   return (
@@ -100,6 +101,14 @@ function App() {
   element={
     <ProtectedRoute allowedRoles={['USER', 'TRAINER']}>
       <MyApplicationsPage />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/owner/gym-profile"
+  element={
+    <ProtectedRoute allowedRoles={['GYM_OWNER']}>
+      <GymProfileEditPage />
     </ProtectedRoute>
   }
 />

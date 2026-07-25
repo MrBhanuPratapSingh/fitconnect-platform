@@ -1,4 +1,4 @@
-package com.fitconnect.auth.entity;
+  package com.fitconnect.auth.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

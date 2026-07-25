@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { getMyGym, createGym } from '../../api/gymApi';
 import type { Gym, GymCreateRequest } from '../../api/gymApi';
 import OwnerSidebar from '../../components/owner/OwnerSidebar';
+import { getMembers } from '../../api/memberApi';
+import { getRatingSummary } from '../../api/reviewApi';
 
 function OwnerDashboardPage() {
   const [gym, setGym] = useState<Gym | null>(null);
@@ -121,16 +123,46 @@ function CreateGymForm({ onCreated }: { onCreated: (gym: Gym) => void }) {
 }
 
 function DashboardOverview({ gym }: { gym: Gym }) {
+  const [activeMembers, setActiveMembers] = useState<number | null>(null);
+  const [avgRating, setAvgRating] = useState<number | null>(null);
+  const [totalReviews, setTotalReviews] = useState<number>(0);
+  const [loadingStats, setLoadingStats] = useState(true);
+
+  useEffect(() => {
+    fetchStats();
+  }, [gym.id]);
+
+  const fetchStats = async () => {
+    try {
+      const [membersRes, ratingRes] = await Promise.all([
+        getMembers(gym.id),
+        getRatingSummary(gym.id),
+      ]);
+
+      const active = membersRes.data.filter((m: any) => m.status === 'ACTIVE').length;
+      setActiveMembers(active);
+      setAvgRating(ratingRes.data.averageRating);
+      setTotalReviews(ratingRes.data.totalReviews);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoadingStats(false);
+    }
+  };
+
   return (
     <div>
       <h1 className="text-xl font-semibold text-white mb-1">Dashboard</h1>
       <p className="text-slate-400 text-sm mb-6">{gym.name}</p>
 
       <div className="grid grid-cols-4 gap-3">
-        <StatCard label="Active members" value="0" />
+        <StatCard label="Active members" value={loadingStats ? '...' : String(activeMembers)} />
         <StatCard label="Fee collected" value="₹0" />
         <StatCard label="Fee overdue" value="₹0" />
-        <StatCard label="Average rating" value="—" />
+        <StatCard
+          label="Average rating"
+          value={loadingStats || avgRating == null || totalReviews === 0 ? '—' : `${avgRating.toFixed(1)} (${totalReviews})`}
+        />
       </div>
     </div>
   );
