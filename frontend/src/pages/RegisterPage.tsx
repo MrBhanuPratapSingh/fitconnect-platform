@@ -28,7 +28,10 @@ function RegisterPage() {
       });
       const { token, fullName: name, email: userEmail, role: userRole } = response.data;
 
-      login(token, { fullName: name, email: userEmail, role: userRole });
+      // Decode the JWT payload to get the real numeric userId embedded by auth-service
+      const payload = JSON.parse(atob(token.split('.')[1]));
+
+      login(token, { id: payload.userId, fullName: name, email: userEmail, role: userRole });
 
       if (userRole === 'GYM_OWNER') {
         navigate('/owner/dashboard');

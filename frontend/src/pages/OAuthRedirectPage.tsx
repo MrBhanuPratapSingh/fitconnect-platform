@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import axiosClient from '../api/axiosClient';
 
 function OAuthRedirectPage() {
   const [searchParams] = useSearchParams();
@@ -16,20 +15,16 @@ function OAuthRedirectPage() {
       return;
     }
 
-    // Decode the JWT payload to get role/email without a network call.
-    // JWTs are base64url-encoded JSON in three dot-separated parts; we only need the middle one.
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
-      const user = {
-        fullName: payload.sub, // fallback, refined below
+
+      login(token, {
+        id: payload.userId,
+        fullName: payload.sub, // email as fallback name; refined once a real profile fetch exists
         email: payload.sub,
         role: payload.role,
-      };
+      });
 
-      login(token, user);
-
-      // Optionally fetch full profile for accurate fullName — skipped for now,
-      // email/role are enough to route correctly.
       if (payload.role === 'GYM_OWNER') {
         navigate('/owner/dashboard');
       } else {
