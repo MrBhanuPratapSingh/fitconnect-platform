@@ -158,6 +158,13 @@ services:
         condition: service_started
       review-service:
         condition: service_started
-
+frontend:
+    build: ./frontend
+    container_name: fitconnect-frontend
+    restart: unless-stopped
+    ports:
+      - "5173:80"
+    depends_on:
+      - api-gateway
 volumes:
   mysql-data:
